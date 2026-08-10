@@ -10,6 +10,7 @@
 #import "FlutterRTCVideoRenderer.h"
 #import "FlutterRTCFrameCryptor.h"
 #if TARGET_OS_IPHONE
+#import "AudioEngineInputGuard.h"
 #import "FlutterRTCMediaRecorder.h"
 #endif
 #if TARGET_OS_IPHONE || TARGET_OS_OSX
@@ -189,6 +190,10 @@ static __weak id<RTCAudioDeviceModuleDelegate> gAudioDeviceModuleObserver = nil;
 @synthesize audioManager = _audioManager;
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
+#if TARGET_OS_IPHONE
+  // Before anything can create the audio device module's AVAudioEngine.
+  [AudioEngineInputGuard install];
+#endif
   FlutterMethodChannel* channel =
       [FlutterMethodChannel methodChannelWithName:@"FlutterWebRTC.Method"
                                   binaryMessenger:[registrar messenger]];
